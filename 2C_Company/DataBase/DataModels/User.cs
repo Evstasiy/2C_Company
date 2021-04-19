@@ -12,5 +12,6 @@ namespace _2C_Company.DataBase.DataModels
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public bool isLogin { get; set; }
     }
 }

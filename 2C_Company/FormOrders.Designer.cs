@@ -29,12 +29,14 @@
         private void InitializeComponent()
         {
             this.dataGridViewOrders = new System.Windows.Forms.DataGridView();
-            this.SelectedOrder = new System.Windows.Forms.Button();
-            this.RefillInfo = new System.Windows.Forms.Label();
             this.Number = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Sum = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SumPayment = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SelectedOrder = new System.Windows.Forms.Button();
+            this.RefillInfo = new System.Windows.Forms.Label();
+            this.moneyCountRefill = new System.Windows.Forms.MaskedTextBox();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewOrders)).BeginInit();
             this.SuspendLayout();
             // 
@@ -58,25 +60,6 @@
             this.dataGridViewOrders.ShowRowErrors = false;
             this.dataGridViewOrders.Size = new System.Drawing.Size(411, 212);
             this.dataGridViewOrders.TabIndex = 2;
-            // 
-            // SelectedOrder
-            // 
-            this.SelectedOrder.Location = new System.Drawing.Point(12, 12);
-            this.SelectedOrder.Name = "SelectedOrder";
-            this.SelectedOrder.Size = new System.Drawing.Size(111, 23);
-            this.SelectedOrder.TabIndex = 3;
-            this.SelectedOrder.Text = "Внести средства";
-            this.SelectedOrder.UseVisualStyleBackColor = true;
-            this.SelectedOrder.Click += new System.EventHandler(this.SelectedOrder_Click);
-            // 
-            // RefillInfo
-            // 
-            this.RefillInfo.AutoSize = true;
-            this.RefillInfo.Location = new System.Drawing.Point(155, 17);
-            this.RefillInfo.Name = "RefillInfo";
-            this.RefillInfo.Size = new System.Drawing.Size(35, 13);
-            this.RefillInfo.TabIndex = 4;
-            this.RefillInfo.Text = "label1";
             // 
             // Number
             // 
@@ -105,17 +88,55 @@
             this.SumPayment.Name = "SumPayment";
             this.SumPayment.ReadOnly = true;
             // 
+            // SelectedOrder
+            // 
+            this.SelectedOrder.Location = new System.Drawing.Point(12, 12);
+            this.SelectedOrder.Name = "SelectedOrder";
+            this.SelectedOrder.Size = new System.Drawing.Size(111, 23);
+            this.SelectedOrder.TabIndex = 3;
+            this.SelectedOrder.Text = "Внести средства";
+            this.SelectedOrder.UseVisualStyleBackColor = true;
+            this.SelectedOrder.Click += new System.EventHandler(this.SelectedOrder_Click);
+            // 
+            // RefillInfo
+            // 
+            this.RefillInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.RefillInfo.AutoSize = true;
+            this.RefillInfo.Location = new System.Drawing.Point(286, 15);
+            this.RefillInfo.Name = "RefillInfo";
+            this.RefillInfo.Size = new System.Drawing.Size(35, 13);
+            this.RefillInfo.TabIndex = 4;
+            this.RefillInfo.Text = "label1";
+            // 
+            // moneyCountRefill
+            // 
+            this.moneyCountRefill.Location = new System.Drawing.Point(218, 12);
+            this.moneyCountRefill.Mask = "000000";
+            this.moneyCountRefill.Name = "moneyCountRefill";
+            this.moneyCountRefill.Size = new System.Drawing.Size(56, 20);
+            this.moneyCountRefill.TabIndex = 5;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(129, 17);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(83, 13);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Сумма взноса:";
+            // 
             // FormOrders
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(431, 277);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.moneyCountRefill);
             this.Controls.Add(this.RefillInfo);
             this.Controls.Add(this.SelectedOrder);
             this.Controls.Add(this.dataGridViewOrders);
             this.Name = "FormOrders";
             this.Text = "FormOrders";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormOrders_FormClosed);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewOrders)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -131,5 +152,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
         private System.Windows.Forms.DataGridViewTextBoxColumn Sum;
         private System.Windows.Forms.DataGridViewTextBoxColumn SumPayment;
+        private System.Windows.Forms.MaskedTextBox moneyCountRefill;
+        private System.Windows.Forms.Label label1;
     }
 }

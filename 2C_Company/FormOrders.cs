@@ -24,21 +24,46 @@ namespace _2C_Company.DataBase
             InitializeComponent();
             this.dbContext = dbContext;
             this.user = user;
-            
+
+            dbContext.Refresh(dbContext.Refills);
             refill = dbContext.Refills.FirstOrDefault(x => x.Number == refillNumber);
-            SetRefillLableInfo(refill);
             UpdateGridOrders(dbContext.Orders);
-            
+            FormClosing += FormOrders_FormClosing;
+            dbContext.isRefreshDb += DbContext_isRefreshDb;
+            dbContext.Refresh(dbContext.Refills);
+        }
+
+        private void DbContext_isRefreshDb()
+        {
+            RefillInfo.Text = $"User balance: {refill.Balance} ";
+        }
+
+        private void FormOrders_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            user.isLogin = false;
+            dbContext.SaveChanges();
         }
 
         private void SelectedOrder_Click(object sender, EventArgs e)
         {
-            if (dataGridViewOrders.CurrentRow != null&& refill.Balance != 0) {
+            dbContext.Refresh(dbContext.Refills);
+            if (dataGridViewOrders.CurrentRow != null && refill.Balance != 0)
+            {
                 var orderNumber = (int)dataGridViewOrders.CurrentRow.Cells[dataGridViewOrders.Columns["Number"].Index].Value;
+                dbContext.Refresh(dbContext.Orders);
                 var order = dbContext.Orders.FirstOrDefault(x => x.Number == orderNumber);
+                if (order.UserId != null && order.UserId != user.Id)
+                {
+                    MessageBox.Show("Извините, в настоящий момент заказ не доступен", "Заказ не доступен", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    UpdateGridOrders(dbContext.Orders);
+                    return;
+                }
+                decimal moneyUserPay = 0;
+                decimal.TryParse(moneyCountRefill.Text, out moneyUserPay);
 
+                moneyUserPay = (moneyUserPay > refill.Balance || moneyUserPay == 0) ? refill.Balance : moneyUserPay;
                 decimal orderSumPay = order.Sum - order.SumPay;
-                decimal sumPay = (orderSumPay < refill.Balance) ? orderSumPay : (decimal)refill.Balance;
+                decimal sumPay = (orderSumPay < moneyUserPay) ? orderSumPay : moneyUserPay;
                 var payment = new Payment()
                 {
                     OrderNumber = orderNumber,
@@ -49,16 +74,20 @@ namespace _2C_Company.DataBase
                 dbContext.Payments.Add(payment);
                 dbContext.SaveChanges();
                 UpdateGridOrders(dbContext.Orders);
-                refill.Balance -= sumPay;
-                SetRefillLableInfo(refill);
+                dbContext.Refresh(dbContext.Refills);
+            }
+            else if(refill.Balance == 0)
+            {
+                MessageBox.Show("На балансе недостаточно средств", "Недостаточно средств", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                dbContext.Refresh(dbContext.Orders); 
+                UpdateGridOrders(dbContext.Orders);
             }
         }
 
         private void UpdateGridOrders(IEnumerable<Order> orders)
         {
             dataGridViewOrders.Rows.Clear();
-            var context = ((System.Data.Entity.Infrastructure.IObjectContextAdapter)dbContext).ObjectContext;
-            context.Refresh(System.Data.Entity.Core.Objects.RefreshMode.StoreWins, orders);
+            dbContext.Refresh(orders);
             orders = orders.Where(x => x.Sum != x.SumPay && (user.Id == x.UserId || x.UserId== null));
             foreach (var order in orders)
             {
@@ -72,13 +101,6 @@ namespace _2C_Company.DataBase
             }
         }
 
-        private void SetRefillLableInfo(Refill refill) {
-            RefillInfo.Text = $"User balance: {refill.Balance} ";
-        }
 
-        private void FormOrders_FormClosed(object sender, FormClosedEventArgs e)
-        {
-
-        }
     }
 }

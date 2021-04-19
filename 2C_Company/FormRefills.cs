@@ -20,22 +20,21 @@ namespace _2C_Company
         public FormRefills()
         {
             InitializeComponent();
-            if (!dbContext.Database.Exists()) {
-                MessageBox.Show("Не удалось подключиться к БД, проверьте настройки подключения в App.config", "Ошибка соединения", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            } else {
-                comboBoxUsers.Items.AddRange(dbContext.Users.Select(x => x.Name).ToArray());
-                comboBoxUsers.SelectedItem = comboBoxUsers.Items[0];
-                UpdateGridRefill(dbContext.Refills);
-            }
-            
+            UpdateCombobox();
+            UpdateGridRefill(dbContext.Refills);
+        }
+
+        private void UpdateCombobox() {
+            comboBoxUsers.Items.Clear();
+            comboBoxUsers.Items.AddRange(dbContext.Users.Where(x=>!x.isLogin).Select(x => x.Name).ToArray());
+            comboBoxUsers.SelectedItem = (comboBoxUsers.Items.Count>=1)? comboBoxUsers.Items[0] : null;
         }
 
         private void UpdateGridRefill(IEnumerable<Refill> refills)
         {
             dataGridViewRefill.Rows.Clear();
 
-            var context = ((System.Data.Entity.Infrastructure.IObjectContextAdapter)dbContext).ObjectContext;
-            context.Refresh(System.Data.Entity.Core.Objects.RefreshMode.StoreWins, refills);
+            dbContext.Refresh(dbContext.Refills);
             refills = refills.Where(x => x.Balance > 0);
 
             foreach (var refill in refills)
@@ -54,17 +53,33 @@ namespace _2C_Company
         private void button2_Click(object sender, EventArgs e)
         {
             var numberColumn = dataGridViewRefill.Columns["Number"].Index;
+            if (dataGridViewRefill.CurrentRow == null)
+                return;
             var valueRef = dataGridViewRefill.CurrentRow.Cells[numberColumn].Value.ToString();
             int numberRef = 0;
             if (Int32.TryParse(valueRef, out numberRef)) {
+                dbContext.Refresh(dbContext.Users);
                 var user = dbContext.Users.FirstOrDefault(x => x.Name == comboBoxUsers.Text);
-                FormOrders formOrders = new FormOrders(dbContext, user, numberRef);
-                var res = formOrders.ShowDialog();
-                if(res == DialogResult.Cancel) 
+                if (!user.isLogin)
+                {
+                    user.isLogin = true;
+                    dbContext.SaveChanges();
+                    FormOrders formOrders = new FormOrders(dbContext, user, numberRef);
+                    var res = formOrders.ShowDialog();
+                    if (res == DialogResult.Cancel)
+                    {
+                        UpdateGridRefill(dbContext.Refills);
+                    }
+                }
+                else {
+                    MessageBox.Show("В настоящий момент выбранный аккаунт недоступен, выберите другой аккаунт", "", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    UpdateCombobox();
                     UpdateGridRefill(dbContext.Refills);
+                    return;
+                }
             }
-            
         }
+
         private async void AddMoney_Click(object sender, EventArgs e)
         {
             if (moneyCountAdd.Text == String.Empty) {
